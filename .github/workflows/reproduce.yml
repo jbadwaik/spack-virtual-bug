@@ -1,0 +1,31 @@
+name: reproduce
+
+# Red while the bug is there, green once Spack concretizes every spec.
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+  schedule:
+    # Mondays, to see when develop fixes it.
+    - cron: "17 5 * * 1"
+
+permissions:
+  contents: read
+
+jobs:
+  reproduce:
+    name: Spack ${{ matrix.spack }}
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        spack: [v1.2.2, develop]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: spack/spack
+          ref: ${{ matrix.spack }}
+          path: spack
+      - name: Reproduce
+        run: ./reproduce.sh spack
